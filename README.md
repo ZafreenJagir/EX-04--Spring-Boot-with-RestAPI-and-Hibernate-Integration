@@ -33,33 +33,103 @@ DELETE /movies/{id}
 
 ## PROGRAM CODE (Main Files):
 ### application.properties
-spring.datasource.url=jdbc:h2:mem:testdb
-spring.datasource.driverClassName=org.h2.Driver
-spring.jpa.hibernate.ddl-auto=update
-spring.jpa.show-sql=true
+spring.application.name=demo
+
 ### Movie.java
+
+```
+
+package com.example.demo;
+
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Movie {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
     private String title;
     private String genre;
-    private int year;
+    private int releaseYear;
     private double rating;
 
-    // Getters and Setters
+    // getters and setters
+
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public String getTitle() {
+        return title;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public String getGenre() {
+        return genre;
+    }
+
+    public void setGenre(String genre) {
+        this.genre = genre;
+    }
+
+    public int getReleaseYear() {
+        return releaseYear;
+    }
+
+    public void setReleaseYear(int releaseYear) {
+        this.releaseYear = releaseYear;
+    }
+
+    public double getRating() {
+        return rating;
+    }
+
+    public void setRating(double rating) {
+        this.rating = rating;
+    }
 }
+
+```
 ### MovieRepository.java
-java
-Copy
-Edit
-public interface MovieRepository extends JpaRepository<Movie, Long> {}
+
+```
+package com.example.demo;
+
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface MovieRepository extends JpaRepository<Movie, Long> {
+}
+```
+
 ### MovieController.java
+
+```
+package com.example.demo;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
 @RestController
 @RequestMapping("/movies")
 public class MovieController {
+
     @Autowired
     private MovieRepository repo;
 
@@ -81,21 +151,38 @@ public class MovieController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Movie> updateMovie(@PathVariable Long id, @RequestBody Movie movieDetails) {
+    public ResponseEntity<Movie> updateMovie(@PathVariable Long id,
+                                             @RequestBody Movie movieDetails) {
+
         return repo.findById(id).map(movie -> {
+
             movie.setTitle(movieDetails.getTitle());
             movie.setGenre(movieDetails.getGenre());
-            movie.setYear(movieDetails.getYear());
+            movie.setReleaseYear(movieDetails.getReleaseYear());
             movie.setRating(movieDetails.getRating());
+
             return ResponseEntity.ok(repo.save(movie));
+
         }).orElse(ResponseEntity.notFound().build());
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteMovie(@PathVariable Long id) {
+    public ResponseEntity<Object> deleteMovie(@PathVariable Long id) {
+
         return repo.findById(id).map(movie -> {
+
             repo.delete(movie);
             return ResponseEntity.ok().build();
+
         }).orElse(ResponseEntity.notFound().build());
     }
 }
+
+```
+
+### Output:
+<img width="1441" height="860" alt="image" src="https://github.com/user-attachments/assets/9aa80ca8-07a5-4896-a813-345a1ee8d59a" />
+
+
+### Result:
+A spring Boot application to store and retrieve data from a Movies database using Object Relational Mapping (ORM) with Hibernate and expose it via REST APIs is developed successfully.
